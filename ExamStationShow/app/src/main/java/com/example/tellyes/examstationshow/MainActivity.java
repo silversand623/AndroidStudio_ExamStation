@@ -458,7 +458,7 @@ public class MainActivity extends AppCompatActivity {
     //上传拍的照片
     private void uploadPicture()
     {
-        if(examUserInfo.CurrentUID==null)
+        if(examUserInfo==null || examUserInfo.CurrentUID==null)
         {
             AlertMessage("不存在学生信息。");
             return;
