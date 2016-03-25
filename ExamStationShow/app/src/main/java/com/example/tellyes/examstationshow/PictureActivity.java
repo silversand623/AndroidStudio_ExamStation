@@ -1,5 +1,6 @@
 package com.example.tellyes.examstationshow;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -17,14 +18,20 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.Size;
+import android.view.Display;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -53,6 +60,8 @@ public class PictureActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_picture);
+
+
         //拍照按钮，传回对应的文件路径
         btnCapture = (Button) findViewById(R.id.btn_capture);
         btnCapture.setOnClickListener(new Button.OnClickListener() {
@@ -74,7 +83,15 @@ public class PictureActivity extends AppCompatActivity {
                 finish();
             }
         });
+        // 方法1 Android获得屏幕的宽和高
+        WindowManager windowManager = getWindowManager();
+        Display display = windowManager.getDefaultDisplay();
+        int screenWidth = screenWidth = display.getWidth();
+        int screenHeight = screenHeight = display.getHeight();
         surfaceView = (SurfaceView) findViewById(R.id.surfaceView1);
+        ViewGroup.LayoutParams lp = surfaceView.getLayoutParams();
+        lp.height = screenHeight-300;
+        surfaceView.setLayoutParams(lp);
         surfaceHolder = surfaceView.getHolder();
         surfaceHolder.addCallback(new SurfaceViewCallback());
         //surfaceHolder.addCallback(this);
@@ -108,18 +125,16 @@ public class PictureActivity extends AppCompatActivity {
 
             try {
                 bm=BitmapFactory.decodeByteArray(arg0, 0, arg0.length);
-                Bitmap mBitmap = Bitmap.createBitmap(bm,200,50,900,900);
+               // int width=bm.getWidth();
+               // int height=bm.getHeight();
+                Bitmap mBitmap = Bitmap.createBitmap(bm,bm.getWidth()/12,0,bm.getWidth()-bm.getWidth()/6,bm.getHeight());
+                //Bitmap mBitmap = Bitmap.createBitmap(bm,0,0,bm.getWidth(),bm.getHeight());
                 FileOutputStream fos = new FileOutputStream(imageFile);
-                mBitmap.compress(Bitmap.CompressFormat.JPEG, 50, fos);
-                //BufferedOutputStream bos = new BufferedOutputStream(
-                       // new FileOutputStream(imageFile));
-                //bos.write(arg0);
-
-
+                mBitmap.compress(Bitmap.CompressFormat.JPEG,100, fos);
                 fos.flush();
                 fos.close();
                 bm.recycle();
-                mBitmap.recycle();
+               mBitmap.recycle();
                 scanFileToPhotoAlbum(imageFile.getAbsolutePath());
                 //以source为原图，创建新的图片，指定起始坐标以及新图像的高宽。
 
@@ -137,8 +152,8 @@ public class PictureActivity extends AppCompatActivity {
                 setResult(RESULT_OK, intent); //这理有2个参数(int resultCode, Intent intent)
                 finish();
             } catch (Exception e) {
-                //Toast.makeText(PictureActivity.this, "Picture Failed" + e.toString(),
-                       // Toast.LENGTH_LONG).show();
+                Toast.makeText(PictureActivity.this, "Picture Failed" + e.toString(),
+                       Toast.LENGTH_LONG).show();
             }
         };
     };
@@ -166,22 +181,43 @@ public class PictureActivity extends AppCompatActivity {
                 mCamera.startPreview();
                 previewing = true;
                 //setCameraDisplayOrientation(PictureActivity.this, mCurrentCamIndex, mCamera);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                String a=e.toString();
+            }
         }
         public void surfaceCreated(SurfaceHolder holder) {
-//				mCamera = Camera.open();
-            //change to front camera
-            mCamera = openFrontFacingCameraGingerbread();
-            // get Camera parameters
-            Camera.Parameters params = mCamera.getParameters();
-            //params.setPreviewSize(500, 700);
-            //myParameters.setFocusMode("auto");
+            try {
+                //				mCamera = Camera.open();
+                //change to front camera
+                mCamera = openFrontFacingCameraGingerbread();
+                // get Camera parameters
+                Camera.Parameters mParameters = mCamera.getParameters();
 
-            //params.setPictureSize(500, 700);
-            List<String> focusModes = params.getSupportedFocusModes();
-            if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
-                // Autofocus mode is supported
+                List<Camera.Size> list = mParameters.getSupportedPictureSizes();
+                Camera.Size size = list.get(0);
+                mParameters.setPictureSize(size.width, size.height);
+                mCamera.setParameters(mParameters);
+
+
+               // int w=mParameters.getPictureSize().width;
+               // int h=mParameters.getPictureSize().height;
+
+                Camera.Parameters params = mCamera.getParameters();
+               // params.setPreviewSize(700, 500);
+               // mCamera.setParameters(params);
+                //myParameters.setFocusMode("auto");
+
+                //params.setPictureSize(500, 700);
+                List<String> focusModes = params.getSupportedFocusModes();
+                if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                    // Autofocus mode is supported
+                }
             }
+            catch (Exception e)
+            {
+                String a=e.toString();
+            }
+
         }
 
         public void surfaceDestroyed(SurfaceHolder holder) {
