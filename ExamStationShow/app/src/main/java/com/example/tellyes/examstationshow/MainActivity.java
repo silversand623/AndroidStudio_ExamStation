@@ -336,7 +336,8 @@ public class MainActivity extends AppCompatActivity {
                                 UserName.setText(URLDecoder.decode(examUserInfo.UName, "UTF-8"));
                                 NextStation.setText(URLDecoder.decode(examUserInfo.NextESName, "UTF-8"));
                                 CurrentTime.setText(examUserInfo.strSystemTime);
-                                ExamTime.setText(examUserInfo.StuStartTime.substring(0, examUserInfo.StuStartTime.lastIndexOf(":")) + "--" + examUserInfo.StuEndTime.substring(0, examUserInfo.StuEndTime.lastIndexOf(":")));
+                               // ExamTime.setText(examUserInfo.StuStartTime.substring(0, examUserInfo.StuStartTime.lastIndexOf(":")) + "--" + examUserInfo.StuEndTime.substring(0, examUserInfo.StuEndTime.lastIndexOf(":")));
+                                ExamTime.setText(examUserInfo.StuStartTime + "--" + examUserInfo.StuEndTime);
                                 ExamState.setText(URLDecoder.decode(examUserInfo.StuState, "UTF-8"));
                                 /*if (ExamState.getText().equals("考试中")) {
                                     ExamState.setTextColor(Color.GREEN);
@@ -360,7 +361,8 @@ public class MainActivity extends AppCompatActivity {
                                 if (examUserInfo.StuState.equals("考试中")) {
                                     Calendar rightNow = Calendar.getInstance();
                                     rightNow.setTime(sdf.parse(YMD + " " + examUserInfo.StuStartTime));
-                                    rightNow.add(Calendar.MINUTE, Integer.parseInt(examUserInfo.strStationExamTime));
+                                   // rightNow.add(Calendar.MINUTE, Integer.parseInt(examUserInfo.strStationExamTime));
+                                    rightNow.add(Calendar.SECOND,(int)(Float.parseFloat(examUserInfo.strStationExamTime)*60));
                                     IntervalDate = rightNow.getTime().getTime() - SysCurrentTime.getTime();
                                     //如果小于0，说明状态不准，都已经超过考试中
                                     if (IntervalDate < 0) {
