@@ -216,13 +216,13 @@
                 android:layout_width="258dp"
                 android:layout_height="@dimen/imageHeight"
                 android:id="@+id/imgView1"
-                android:background="@drawable/studentimg"
+                android:src="@drawable/studentimg"
                 />
             <ImageView
                 android:layout_width="258dp"
                 android:layout_height="@dimen/imageHeight"
                 android:id="@+id/imgView2"
-                android:background="@drawable/studentimg2"
+                android:src="@drawable/studentimg2"
                 android:layout_marginTop="10dp"
                />
             <LinearLayout

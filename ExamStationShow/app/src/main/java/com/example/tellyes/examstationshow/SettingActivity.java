@@ -210,7 +210,7 @@ public class SettingActivity extends AppCompatActivity {
                             roomInfoList = gson.fromJson(result,type);
                            for(int i=0;i<roomInfoList.toArray().length;i++)
                            {
-                               if(roomInfoList.get(i).RoomName.equals(RoomName.getText().toString()))
+                               if(URLDecoder.decode(roomInfoList.get(i).RoomName, "UTF-8").equals(RoomName.getText().toString()))
                                {
                                    index=i;
                                }

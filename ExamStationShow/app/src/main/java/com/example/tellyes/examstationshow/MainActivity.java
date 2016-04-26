@@ -523,7 +523,10 @@ public class MainActivity extends AppCompatActivity {
     private void getCurrentUserPhoto(){
         String url="http://";
         url=url+BaseUrl+"/AppDataInterface/ExamInfoShow.aspx/GetCurrentUserPhoto?U_ID="+examUserInfo.CurrentUID;
+
         Ion.with(imgView1)
+        .placeholder(R.drawable.studentimg)
+       .error(R.drawable.studentimg)
                      // load the url
                 .load(url);
     }
