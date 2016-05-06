@@ -72,6 +72,9 @@ public class SettingActivity extends AppCompatActivity {
         //获取设置的服务器IP和房间
         BaseUrl =userInfo.getString("ipconfig", null);
         roomname=userInfo.getString("roomname", null);
+        if(roomname!=null) {
+            RoomName.setText(roomname);
+        }
         if(BaseUrl!=null)
         {
             IPAddress.setText(BaseUrl);
@@ -81,9 +84,7 @@ public class SettingActivity extends AppCompatActivity {
         {
             IPAddress.setText("");
         }
-        if(roomname!=null) {
-            RoomName.setText(roomname);
-        }
+
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
