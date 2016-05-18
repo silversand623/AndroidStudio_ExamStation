@@ -61,9 +61,27 @@ import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
+    private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 123;
+    private static final int CROP_IMAGE_REQUEST_CODE = 125;
     ExamUserInfo examUserInfo;
     ExamStationInfo examStationInfo;
-
+    //文件保存路径
+    // private String capturePath = null;
+    String imagePath;
+    //记时五秒执行取数据
+    int preS = 10;
+    //为了校对系统时间,暂定为2分钟，执行一次
+    int CheckS = 120;
+    //设置当前时间
+    Date SysCurrentTime = new Date();
+    long IntervalDate;
+    //boolean StartFlag=false;
+    //是否重新启动计时器
+    // boolean restratTime=false;
+    GregorianCalendar cal = new GregorianCalendar();
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    String BaseUrl;
+    String roomname;
     private TextView EsName;
     private TextView ExamName;
     //当前考生
@@ -84,9 +102,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView ExamContent;
     //下一位考生
     private TextView NextStuExamNumber;
-    //文件保存路径
-   // private String capturePath = null;
-    String imagePath;
     //上传后的图片背景
     private ImageView imgView1;
     //当前考生采集的图片
@@ -99,57 +114,40 @@ public class MainActivity extends AppCompatActivity {
     private TextView btnSet;
     //计时器
     private Chronometer chronometer;
+    //String tempStr=null;
     //用于记时，如果考试没有考试需要定期判断考试是否开始
     private Chronometer chronometer2;
-    //记时五秒执行取数据
-    int preS=10;
-    //为了校对系统时间,暂定为2分钟，执行一次
-    int CheckS=120;
-    //设置当前时间
-    Date SysCurrentTime=new Date();
-    long IntervalDate;
-    //boolean StartFlag=false;
-    //是否重新启动计时器
-   // boolean restratTime=false;
-    GregorianCalendar cal = new GregorianCalendar();
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     private int startTime = 0;
-    private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE =123;
-    private static final int CROP_IMAGE_REQUEST_CODE =125;
-    //String tempStr=null;
-
-    String BaseUrl;
-    String roomname;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        EsName=(TextView)findViewById(R.id.EsName);
-        ExamName=(TextView)findViewById(R.id.ExamName);
+        EsName = (TextView) findViewById(R.id.EsName);
+        ExamName = (TextView) findViewById(R.id.ExamName);
         //学生信息
-        UserName=(TextView)findViewById(R.id.UserName);
-        NextStation=(TextView)findViewById(R.id.NextStation);
-        CurrentTime=(TextView)findViewById(R.id.CurrentTime);
-        ExamTime=(TextView)findViewById(R.id.ExamTime);
-        ExamState=(TextView)findViewById(R.id.ExamState);
-        LeaveTime=(TextView)findViewById(R.id.LeaveTime);
-        ExamTitle=(TextView)findViewById(R.id.ExamTitle);
-        ExamContent=(TextView)findViewById(R.id.ExamContent);
-        NextStuExamNumber=(TextView)findViewById(R.id.NextStuExamNumber);
+        UserName = (TextView) findViewById(R.id.UserName);
+        NextStation = (TextView) findViewById(R.id.NextStation);
+        CurrentTime = (TextView) findViewById(R.id.CurrentTime);
+        ExamTime = (TextView) findViewById(R.id.ExamTime);
+        ExamState = (TextView) findViewById(R.id.ExamState);
+        LeaveTime = (TextView) findViewById(R.id.LeaveTime);
+        ExamTitle = (TextView) findViewById(R.id.ExamTitle);
+        ExamContent = (TextView) findViewById(R.id.ExamContent);
+        NextStuExamNumber = (TextView) findViewById(R.id.NextStuExamNumber);
         //显示的两张图片
-        imgView1=(ImageView)findViewById(R.id.imgView1);
-        imgView2=(ImageView)findViewById(R.id.imgView2);
+        imgView1 = (ImageView) findViewById(R.id.imgView1);
+        imgView2 = (ImageView) findViewById(R.id.imgView2);
         //三个图片控制按钮
-        btnUpload=(ImageView)findViewById(R.id.btnUpload);
-        btnCamera=(ImageView)findViewById(R.id.btnCamera);
-        btnClear=(ImageView)findViewById(R.id.btnClear);
+        btnUpload = (ImageView) findViewById(R.id.btnUpload);
+        btnCamera = (ImageView) findViewById(R.id.btnCamera);
+        btnClear = (ImageView) findViewById(R.id.btnClear);
         //获取设置的服务器IP和房间
-        SharedPreferences userInfo = getSharedPreferences("user_info",0);
-        BaseUrl =userInfo.getString("ipconfig", null);
-        roomname=userInfo.getString("roomname", null);
+        SharedPreferences userInfo = getSharedPreferences("user_info", 0);
+        BaseUrl = userInfo.getString("ipconfig", null);
+        roomname = userInfo.getString("roomname", null);
         //设置按钮
-        btnSet=(TextView)findViewById(R.id.btnSet);
+        btnSet = (TextView) findViewById(R.id.btnSet);
         btnSet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -159,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         //上传图片按钮
-        btnUpload=(ImageView)findViewById(R.id.btnUpload);
+        btnUpload = (ImageView) findViewById(R.id.btnUpload);
         btnUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -167,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         //计时器
-        chronometer=(Chronometer)findViewById(R.id.chronometer);
+        chronometer = (Chronometer) findViewById(R.id.chronometer);
         chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
             @Override
             public void onChronometerTick(Chronometer chronometer) {
@@ -186,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
                     second = "0" + second;
                 }
                 CurrentTime.setText(hour + "h " + minute + "m " + second + "s");
-                CheckS=CheckS-1;
+                CheckS = CheckS - 1;
                 //剩余时间计算,每次减一秒
                 if (IntervalDate >= 1000) {
                     IntervalDate = IntervalDate - 1000;
@@ -196,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                     String s1 = String.valueOf(s % 60).length() == 1 ? "0" + String.valueOf(s % 60) : String.valueOf(s % 60);
                     LeaveTime.setText(m + "m " + s1 + "s");
                     //如果校对时间已到2分钟，就调用重新加载数据
-                    if (CheckS<0) {
+                    if (CheckS < 0) {
                         CheckS = 120;
                         GetUserInfo();
                     }
@@ -214,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
                 //}
             }
         });
-        chronometer2=(Chronometer)findViewById(R.id.chronometer2);
+        chronometer2 = (Chronometer) findViewById(R.id.chronometer2);
         chronometer2.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
             @Override
             public void onChronometerTick(Chronometer chronometer) {
@@ -227,15 +225,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-            //拍照按钮
+        //拍照按钮
         btnCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //startCamera();
                 Intent bintent = new Intent(MainActivity.this, PictureActivity.class);
-               // String bsay = "Hello, this is B speaking";
+                // String bsay = "Hello, this is B speaking";
                 //bintent.putExtra("listenB", bsay);
-                startActivityForResult(bintent,CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE); // 参数(Intent intent, Int requestCode) 的 requestCode 对应下面回收Bundle时识别用的
+                startActivityForResult(bintent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE); // 参数(Intent intent, Int requestCode) 的 requestCode 对应下面回收Bundle时识别用的
 
 
             }
@@ -245,25 +243,24 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 imgView2.setImageResource(R.drawable.studentimg2);
-                imagePath=null;
+                imagePath = null;
             }
         });
         //如果服务器IP和房间设置成功才调用加载数据的方法
-        if(BaseUrl!=null && roomname!=null)
-        {
+        if (BaseUrl != null && roomname != null) {
             //getSystemState();
             //页面加载时
             GetUserInfo();
             GetStationInfoUTF8();
-        }
-        else {
+        } else {
             Toast.makeText(getApplicationContext(), "请先设置服务器IP和房间",
                     Toast.LENGTH_LONG).show();
         }
     }
-    private void GetStationInfoUTF8(){
-        String url="http://";
-        url=url+BaseUrl+"/AppDataInterface/ExamInfoShow.aspx/GetStationInfoUTF8";
+
+    private void GetStationInfoUTF8() {
+        String url = "http://";
+        url = url + BaseUrl + "/AppDataInterface/ExamInfoShow.aspx/GetStationInfoUTF8";
         Ion.with(this)
                 .load(url)
                 .setBodyParameter("RoomName", roomname)
@@ -285,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
                                 EsName.setText(URLDecoder.decode(examStationInfo.EsName, "UTF-8"));
                                 ExamName.setText(URLDecoder.decode(examStationInfo.ExamName, "UTF-8"));
                                 ExamTitle.setText(URLDecoder.decode(examStationInfo.Curriculum, "UTF-8"));
-                              ExamContent.setText(URLDecoder.decode(examStationInfo.Content, "UTF-8"));
+                                ExamContent.setText(URLDecoder.decode(examStationInfo.Content, "UTF-8"));
                             } else {
                                 chronometer.stop();
                                 chronometer2.setBase(SystemClock.elapsedRealtime());
@@ -294,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
                                 EsName.setText("");
                                 ExamName.setText("");
                                 ExamTitle.setText("");
-                                 ExamContent.setText("");
+                                ExamContent.setText("");
 
                             }
 
@@ -309,12 +306,13 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
-    //获取详细信息
-    private void GetUserInfo(){
-        String url="http://";
-        url=url+BaseUrl+"/AppDataInterface/ExamInfoShow.aspx/GetUserInfo";
 
-     Ion.with(this)
+    //获取详细信息
+    private void GetUserInfo() {
+        String url = "http://";
+        url = url + BaseUrl + "/AppDataInterface/ExamInfoShow.aspx/GetUserInfo";
+
+        Ion.with(this)
                 .load(url)
                 .setBodyParameter("RoomName", roomname)
                 .asJsonObject()
@@ -336,7 +334,7 @@ public class MainActivity extends AppCompatActivity {
                                 UserName.setText(URLDecoder.decode(examUserInfo.UName, "UTF-8"));
                                 NextStation.setText(URLDecoder.decode(examUserInfo.NextESName, "UTF-8"));
                                 CurrentTime.setText(examUserInfo.strSystemTime);
-                               // ExamTime.setText(examUserInfo.StuStartTime.substring(0, examUserInfo.StuStartTime.lastIndexOf(":")) + "--" + examUserInfo.StuEndTime.substring(0, examUserInfo.StuEndTime.lastIndexOf(":")));
+                                // ExamTime.setText(examUserInfo.StuStartTime.substring(0, examUserInfo.StuStartTime.lastIndexOf(":")) + "--" + examUserInfo.StuEndTime.substring(0, examUserInfo.StuEndTime.lastIndexOf(":")));
                                 ExamTime.setText(examUserInfo.StuStartTime + "--" + examUserInfo.StuEndTime);
                                 ExamState.setText(URLDecoder.decode(examUserInfo.StuState, "UTF-8"));
                                 /*if (ExamState.getText().equals("考试中")) {
@@ -361,8 +359,8 @@ public class MainActivity extends AppCompatActivity {
                                 if (examUserInfo.StuState.equals("考试中")) {
                                     Calendar rightNow = Calendar.getInstance();
                                     rightNow.setTime(sdf.parse(YMD + " " + examUserInfo.StuStartTime));
-                                   // rightNow.add(Calendar.MINUTE, Integer.parseInt(examUserInfo.strStationExamTime));
-                                    rightNow.add(Calendar.SECOND,(int)(Float.parseFloat(examUserInfo.strStationExamTime)*60));
+                                    // rightNow.add(Calendar.MINUTE, Integer.parseInt(examUserInfo.strStationExamTime));
+                                    rightNow.add(Calendar.SECOND, (int) (Float.parseFloat(examUserInfo.strStationExamTime) * 60));
                                     IntervalDate = rightNow.getTime().getTime() - SysCurrentTime.getTime();
                                     //如果小于0，说明状态不准，都已经超过考试中
                                     if (IntervalDate < 0) {
@@ -429,112 +427,109 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE:
-                if (resultCode== RESULT_OK) {
+                if (resultCode == RESULT_OK) {
                     //给Image赋值,显示图片
                     try {
-                       // FileInputStream fis = new FileInputStream(imageFile.getPath());
+                        // FileInputStream fis = new FileInputStream(imageFile.getPath());
                         Bundle bundle = data.getExtras(); //data为B中回传的Intent
-                        imagePath=bundle.getString("imagePath");
+                        imagePath = bundle.getString("imagePath");
                         Uri imageUri = Uri.parse(imagePath);
-                        if(!imagePath.equals("")) {
+                        if (!imagePath.equals("")) {
                             imgView2.setImageBitmap(BitmapFactory.decodeFile(imagePath));
-                           // cropImageUri(imageUri, 500, 600);
+                            // cropImageUri(imageUri, 500, 600);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
                 //else {
-                    //Toast.makeText(this,"拍照出错，未获取到图片",Toast.LENGTH_LONG).show();
+                //Toast.makeText(this,"拍照出错，未获取到图片",Toast.LENGTH_LONG).show();
                 //}
                 break;
-           // case CROP_IMAGE_REQUEST_CODE:
-               // if(imagePath != null){
-                   // imgView2.setImageBitmap(BitmapFactory.decodeFile(imagePath));
-                   // }
-               // break;
+            // case CROP_IMAGE_REQUEST_CODE:
+            // if(imagePath != null){
+            // imgView2.setImageBitmap(BitmapFactory.decodeFile(imagePath));
+            // }
+            // break;
             default:
                 break;
         }
     }
+
     //上传拍的照片
-    private void uploadPicture()
-    {
-        if(examUserInfo==null || examUserInfo.CurrentUID==null)
-        {
+    private void uploadPicture() {
+        if (examUserInfo == null || examUserInfo.CurrentUID == null) {
             AlertMessage("不存在学生信息。");
             return;
         }
-        if(imagePath==null || imagePath.equals(""))
-        {
+        if (imagePath == null || imagePath.equals("")) {
             AlertMessage("请先拍照再上传。");
             return;
         }
-        String url="http://";
-        url=url+BaseUrl+"/AppDataInterface/ExamInfoShow.aspx/SaveCurrentUserPhoto";
-        if(imagePath!=null) {
-                Ion.with(this)
-                        .load(url)
-                        .setMultipartParameter("RoomName", roomname)
-                        .setMultipartParameter("UID", examUserInfo.CurrentUID)
-                        .setMultipartFile("image", new File(imagePath))
-                        .asJsonObject()
-                        .setCallback(new FutureCallback<JsonObject>() {
-                            @Override
-                            public void onCompleted(Exception e, JsonObject result) {
-                                if (e != null) {
-                                    return;
-                                }
-                                //////
-                                try {
-                                    JSONObject obj = new JSONObject(result.toString());
-                                    if (result.toString().indexOf("IsSave") != -1) {
-                                        String res = obj.getString("IsSave");
-                                        if (res.equals("1")) {
-                                            //如果上传成功则填充上面图片
-                                            AlertMessage("上传图片数据成功。");
-                                            //imgView2.setImageResource(R.drawable.studentimg2);
-                                            //imagePath=null;
-                                            //imgView1.setImageBitmap(BitmapFactory.decodeFile(imagePath));
-                                        } else {
-                                            AlertMessage("上传图片数据失败。");
-                                        }
-                                    } else if (result.toString().indexOf("hasPhoto") != -1) {
-                                        AlertMessage("已存在一张图片。");
+        String url = "http://";
+        url = url + BaseUrl + "/AppDataInterface/ExamInfoShow.aspx/SaveCurrentUserPhoto";
+        if (imagePath != null) {
+            Ion.with(this)
+                    .load(url)
+                    .setMultipartParameter("RoomName", roomname)
+                    .setMultipartParameter("UID", examUserInfo.CurrentUID)
+                    .setMultipartFile("image", new File(imagePath))
+                    .asJsonObject()
+                    .setCallback(new FutureCallback<JsonObject>() {
+                        @Override
+                        public void onCompleted(Exception e, JsonObject result) {
+                            if (e != null) {
+                                return;
+                            }
+                            //////
+                            try {
+                                JSONObject obj = new JSONObject(result.toString());
+                                if (result.toString().indexOf("IsSave") != -1) {
+                                    String res = obj.getString("IsSave");
+                                    if (res.equals("1")) {
+                                        //如果上传成功则填充上面图片
+                                        AlertMessage("上传图片数据成功。");
+                                        //imgView2.setImageResource(R.drawable.studentimg2);
+                                        //imagePath=null;
+                                        //imgView1.setImageBitmap(BitmapFactory.decodeFile(imagePath));
                                     } else {
                                         AlertMessage("上传图片数据失败。");
                                     }
-
-                                } catch (Exception eJson) {
-                                    System.out.println(eJson);
+                                } else if (result.toString().indexOf("hasPhoto") != -1) {
+                                    AlertMessage("已存在一张图片。");
+                                } else {
+                                    AlertMessage("上传图片数据失败。");
                                 }
-                                /////
 
+                            } catch (Exception eJson) {
+                                System.out.println(eJson);
                             }
-                        });
-        }
-        else
-        {
+                            /////
+
+                        }
+                    });
+        } else {
             AlertMessage("请先拍照再上传。");
         }
     }
+
     //获取当前人员照片
     //获取图片信息进行填充
-    private void getCurrentUserPhoto(){
-        String url="http://";
-        url=url+BaseUrl+"/AppDataInterface/ExamInfoShow.aspx/GetCurrentUserPhoto?U_ID="+examUserInfo.CurrentUID;
+    private void getCurrentUserPhoto() {
+        String url = "http://";
+        url = url + BaseUrl + "/AppDataInterface/HandScore.aspx/SearchStudentPhoto?U_ID=" + examUserInfo.CurrentUID;
 
         Ion.with(imgView1)
-        .placeholder(R.drawable.studentimg)
-       .error(R.drawable.studentimg)
-                     // load the url
+                .placeholder(R.drawable.studentimg)
+                .error(R.drawable.studentimg)
+                        // load the url
                 .load(url);
     }
+
     //检测系统状态
-    private void getSystemState()
-    {
-        String url="http://";
-        url=url+BaseUrl+"/AppDataInterface/ExamInfoShow.aspx/SendExamState";
+    private void getSystemState() {
+        String url = "http://";
+        url = url + BaseUrl + "/AppDataInterface/ExamInfoShow.aspx/SendExamState";
         Ion.with(this)
                 .load(url)
                 .setBodyParameter("RoomName", roomname)
@@ -575,8 +570,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
-    private void AlertMessage(String strMsg)
-    {
+
+    private void AlertMessage(String strMsg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("提示").setMessage(strMsg)
                 .setPositiveButton("确定",
@@ -587,23 +582,26 @@ public class MainActivity extends AppCompatActivity {
                         })
                 .show();
     }
+
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
+        imgView1.setImageResource(R.drawable.studentimg);
+        //获取设置的服务器IP和房间
+        SharedPreferences userInfo = getSharedPreferences("user_info", 0);
+        BaseUrl = userInfo.getString("ipconfig", null);
+        roomname = userInfo.getString("roomname", null);
+        Log.d("mydebug", "onResume");
         //如果服务器IP和房间设置成功才调用加载数据的方法
-        if(BaseUrl!=null && roomname!=null)
-        {
+        if (BaseUrl != null && roomname != null) {
             //getSystemState();
             //页面加载时
             GetUserInfo();
             GetStationInfoUTF8();
-        }
-        else {
+        } else {
             Toast.makeText(getApplicationContext(), "请先设置服务器IP和房间",
                     Toast.LENGTH_LONG).show();
         }
     }
-
 
 }
