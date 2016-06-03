@@ -216,12 +216,14 @@
                 android:layout_width="258dp"
                 android:layout_height="@dimen/imageHeight"
                 android:id="@+id/imgView1"
+                android:scaleType="fitXY"
                 android:src="@drawable/studentimg"
                 />
             <ImageView
                 android:layout_width="258dp"
                 android:layout_height="@dimen/imageHeight"
                 android:id="@+id/imgView2"
+                android:scaleType="fitXY"
                 android:src="@drawable/studentimg2"
                 android:layout_marginTop="10dp"
                />
@@ -240,7 +242,7 @@
                     <ImageView
                         android:layout_width="63dp"
                         android:layout_height="63dp"
-                        android:background="@drawable/upload"
+                        android:src="@drawable/upload"
                         android:id="@+id/btnUpload"
                         />
                     <TextView
@@ -260,7 +262,7 @@
                     <ImageView
                         android:layout_width="63dp"
                         android:layout_height="63dp"
-                        android:background="@drawable/picture"
+                        android:src="@drawable/picture"
                         android:id="@+id/btnCamera"
                         />
                     <TextView

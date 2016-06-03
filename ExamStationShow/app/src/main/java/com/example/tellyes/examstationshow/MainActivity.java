@@ -118,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
     //用于记时，如果考试没有考试需要定期判断考试是否开始
     private Chronometer chronometer2;
     private int startTime = 0;
+    //记录每个学生评分中标志,0不是评分中，1为评分中，在评分中倒计时完成后清空图片
+    private int pingfenFlag=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,6 +202,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else {
                     //StartFlag=false;
+                    if(pingfenFlag==1) {
+                        pingfenFlag=0;
+                        imgView2.setImageResource(R.drawable.studentimg2);
+                        imgView1.setImageResource(R.drawable.studentimg);
+                    }
                     GetUserInfo();
                     GetStationInfoUTF8();
                 }
@@ -378,6 +385,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 } else {
                                     IntervalDate = sdf.parse(YMD + " " + examUserInfo.StuEndTime).getTime() - SysCurrentTime.getTime();
+                                    pingfenFlag=1;
                                 }
                                 //IntervalDate=sdf.parse(cal.get(Calendar.YEAR)+"/"+(cal.get(Calendar.MONTH)+1)+"/"+cal.get(Calendar.DATE)+" "+examUserInfo.StuEndTime).getTime()-SysCurrentTime.getTime();
                                 //填充个人图片
