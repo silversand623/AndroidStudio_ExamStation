@@ -153,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
         btnSet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                imgView2.setImageResource(R.drawable.studentimg2);
                 //打开设置界面
                 Intent intent = new Intent(MainActivity.this, SettingActivity.class);
                 startActivity(intent);
