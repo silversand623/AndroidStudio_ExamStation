@@ -17,6 +17,6 @@
     <dimen name="pictureTextHeight">95dp</dimen>
     <dimen name="pictureTextWidth">63dp</dimen>
     <dimen name="ExamTitleFontWidth">405dp</dimen>
-    <dimen name="ExamContentFontWidth">1005dp</dimen>
+    <dimen name="ExamContentFontWidth">945dp</dimen>
     <dimen name="imageHeight">235dp</dimen>
 </resources>
