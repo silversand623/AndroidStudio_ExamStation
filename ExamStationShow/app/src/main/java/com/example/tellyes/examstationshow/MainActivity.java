@@ -207,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
                         pingfenFlag=0;
                         imgView2.setImageResource(R.drawable.studentimg2);
                         imgView1.setImageResource(R.drawable.studentimg);
+                        imagePath = null;
                     }
                     GetUserInfo();
                     GetStationInfoUTF8();
