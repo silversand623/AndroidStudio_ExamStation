@@ -141,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
         //显示的两张图片
         imgView1 = (ImageView) findViewById(R.id.imgView1);
         imgView2 = (ImageView) findViewById(R.id.imgView2);
+
         //三个图片控制按钮
         btnUpload = (ImageView) findViewById(R.id.btnUpload);
         btnCamera = (ImageView) findViewById(R.id.btnCamera);
@@ -599,9 +600,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onRestart() {
+        super.onRestart();
         imgView1.setImageResource(R.drawable.studentimg);
+        if (imagePath != null) {
+            if (!imagePath.equals("")) {
+                imgView2.setImageBitmap(BitmapFactory.decodeFile(imagePath));
+
+            }
+        }
         //获取设置的服务器IP和房间
         SharedPreferences userInfo = getSharedPreferences("user_info", 0);
         BaseUrl = userInfo.getString("ipconfig", null);
@@ -617,6 +624,13 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "请先设置服务器IP和房间",
                     Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        imgView2.setImageResource(R.drawable.studentimg2);
+        imagePath = null;
     }
 
 }
