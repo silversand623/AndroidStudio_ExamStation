@@ -105,8 +105,7 @@ public class SettingActivity extends AppCompatActivity {
                 if (matcher.find()) {
                    // Toast.makeText(getApplicationContext(), "设置成功",
                             //Toast.LENGTH_LONG).show();
-                    SharedPreferences userInfo = getSharedPreferences(
-                            "user_info", 0);
+                    SharedPreferences userInfo = getSharedPreferences("user_info", 0);
 
                     userInfo.edit()
                             .putString(
@@ -148,12 +147,11 @@ public class SettingActivity extends AppCompatActivity {
                     SharedPreferences userInfo = getSharedPreferences(
                             "user_info", 0);
                     userInfo.edit()
-                            .putString(
-                                    "ipconfig",
-                                    IPAddress.getText()
-                                            .toString())
+                            .putString("ipconfig", IPAddress.getText().toString())
                             .commit();
                     BaseUrl = IPAddress.getText().toString();
+                    m.clear();
+                    adapter.notifyDataSetChanged();
                     AlertMessage("IP地址设置信息成功。");
                     GetRoomInfoUTF8();
                 }
@@ -199,6 +197,7 @@ public class SettingActivity extends AppCompatActivity {
                     @Override
                     public void onCompleted(Exception e, JsonArray result) {
                         if (e != null) {
+                            //AlertMessage("网络连接错误"+e.toString());
                             return;
                         }
                         //////

@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.Camera;
+import android.media.MediaPlayer;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -208,9 +209,13 @@ public class MainActivity extends AppCompatActivity {
                         imgView2.setImageResource(R.drawable.studentimg2);
                         imgView1.setImageResource(R.drawable.studentimg);
                         imagePath = null;
+
                     }
                     GetUserInfo();
                     GetStationInfoUTF8();
+                    MediaPlayer mediaPlayer = MediaPlayer.create(MainActivity.this,
+                            R.raw.beep);
+                    mediaPlayer.start();
                 }
 
                 // 如果开始计时到现在超过了startime秒
