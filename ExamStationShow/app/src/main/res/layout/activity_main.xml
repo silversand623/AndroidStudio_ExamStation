@@ -22,7 +22,7 @@
         android:background="@color/bannerBgColor"
         android:layout_alignParentStart="true">
     <TextView
-        android:layout_width="485dp"
+        android:layout_width="585dp"
         android:layout_height="wrap_content"
         android:text="考站"
         android:textSize="@dimen/pageTitleFontSize"
@@ -32,7 +32,7 @@
         android:layout_marginLeft="@dimen/leftPadding"
         />
     <TextView
-        android:layout_width="700dp"
+        android:layout_width="600dp"
         android:layout_height="wrap_content"
         android:text="考试名称"
         android:textSize="@dimen/pageTitleFontSize"
